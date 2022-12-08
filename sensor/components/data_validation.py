@@ -2,13 +2,16 @@ from sensor.entity import artifact_entity,config_entity
 from sensor.exception import SensorException
 from sensor.logger import logging 
 from scipy.stats import ks_2samp
-import os,sys   
+from typing import Optional
+import os,sys    
 import pandas as pd
 from sensor import utils 
+import numpy as np
+from sensor.config import TARGET_COLUMN
 
 class DataValidation:
     
-    def __init__(self,data_validation_config:config_entity.DataValidatioConfig,
+    def __init__(self,data_validation_config:config_entity.DataValidationConfig,
                 data_ingestion_artifact:artifact_entity.DataIngestionArtifact):
         try:
             logging.info(f"{'>>'*20} Data Validation {'<<'*20}")
@@ -18,7 +21,7 @@ class DataValidation:
         except Exception as e:
             raise SensorException(e,sys)
     
-    def drop_missing_values_columns(self,df:pd.DataFrame,report_key_name:str)->Optional(pd.DataFrame):
+    def drop_missing_values_columns(self,df:pd.DataFrame,report_key_name:str)->Optional[pd.DataFrame]:
         """
         This function will drop column which contains missing value more than specified threshold
         
@@ -62,7 +65,7 @@ class DataValidation:
         except Exception as e:
             raise e  
     
-    def data_drift(self,base_df:pd.DataFrame,current_df:pd.Dataframe,report_key_name:str):
+    def data_drift(self,base_df:pd.DataFrame,current_df:pd.DataFrame,report_key_name:str):
         try:
             drift_report = dict()
             base_columns = base_df.columns
@@ -71,7 +74,7 @@ class DataValidation:
             for base_column in base_columns:
                 base_data,current_data = base_df[base_column],current_df[base_column]
                 # Null hypothesis is that both column data a from same distribution
-                logging.info(f"Hyporhesis{base_column}:{base_data.dtype},{current_data.dtype}")
+                logging.info(f"Hypothesis{base_column}:{base_data.dtype},{current_data.dtype}")
                 same_disrtibution = ks_2samp(base_data, current_data)
                 
                 if same_disrtibution.pvalue>0.05:
@@ -85,7 +88,8 @@ class DataValidation:
                         "same_distribution":False
                     } 
                     
-            self.validation_error[report_key_name]= drift_report    
+                self.validation_error[report_key_name]= drift_report   
+                 
         except Exception as e:
             raise SensorException(e,sys)
         
@@ -110,7 +114,7 @@ class DataValidation:
             logging.info(f"Drop null values from test df")
             test_df=self.drop_missing_values_columns(df=test_df,report_key_name="missing_values_within_test_dataset")
             
-            exclude_column = ["class"]
+            exclude_column = [TARGET_COLUMN]
             base_df = utils.convert_columns_float(df=base_df, exclude_columns=exclude_columns)
             train_df = utils.convert_columns_float(df=train_df, exclude_columns=exclude_columns)
             test_df = utils.convert_columns_float(df=test_df, exclude_columns=exclude_columns)

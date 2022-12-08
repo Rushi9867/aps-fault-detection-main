@@ -24,8 +24,9 @@ if __name__ == "__main__":
           data_ingestion = DataIngestion(data_ingestion_config=data_ingestion_config)
           data_ingestion_artifact = data_ingestion.initiate_data_ingestion()
           data_validatin_config=config_entity.DataValidatioConfig(training_pipeline_config=training_pipeline_config)
-          data_validation = DataValidation(data_validation_config=data_validatin_config, data_ingestion_artifact=data_ingestion_artifact)
+          data_validation = DataValidation(data_validation_config=data_validation_config, data_ingestion_artifact=data_ingestion_artifact)
           data_ingestion_artifact=data_validation.initiate_data_validation()
      except Exception as e:
           print(e)
+          
           
