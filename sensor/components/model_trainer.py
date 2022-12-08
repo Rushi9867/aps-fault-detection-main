@@ -7,7 +7,6 @@ from xgboost import XGBClassifier
 from sensor import utils
 from sklearn.metrics import f1_score
 
-
 class ModelTrainer:
 
 
@@ -86,3 +85,4 @@ class ModelTrainer:
             return model_trainer_artifact
         except Exception as e:
             raise SensorException(e, sys)
+        
