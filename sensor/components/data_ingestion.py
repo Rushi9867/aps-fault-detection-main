@@ -20,12 +20,14 @@ class DataIngestion:
     def initiate_data_ingestion(self)->artifact_entity.DataIngestionArtifact:
         try:
             logging.info(f"Exporting collection data as pandas dataframe")
+            
             #Exporting collection data as pandas dataframe
             df:pd.DataFrame  = utils.get_collection_as_dataframe(
                 database_name=self.data_ingestion_config.database_name, 
                 collection_name=self.data_ingestion_config.collection_name)
 
             logging.info("Save data in feature store")
+            
             #replace na with Nan
             df.replace(to_replace="na",value=np.NAN,inplace=True)
 
